@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class Chatpage extends StatefulWidget {
@@ -20,9 +21,13 @@ class _ChatpageState extends State<Chatpage> {
   @override
   void initState() {
     super.initState();
+    setState(() {
+      views.add(userText(widget.initialText));
+    });
+    socket.sink.add(widget.initialText);
     subscription = socket.stream.listen((data) {
       setState(() {
-        views.add(llmResponse(data));
+        views.add(llmResponse(data, context));
         views.add(SizedBox(height: 50,));
       });
     }, onError: (error) {
@@ -40,6 +45,15 @@ class _ChatpageState extends State<Chatpage> {
     super.dispose();
   }
 
+  void sendMessage () {
+      setState(() {
+           views.add(userText(Controller.text.trim()));
+          });
+                      // print("The length of views is ${views.length}");
+    socket.sink.add(Controller.text.trim());
+    Controller.clear();
+    }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,7 +61,7 @@ class _ChatpageState extends State<Chatpage> {
         scrollDirection: Axis.vertical,
         child: Column(children: views),
       ),
-      floatingActionButton: Row(
+      bottomNavigationBar: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
@@ -56,22 +70,23 @@ class _ChatpageState extends State<Chatpage> {
               borderRadius: BorderRadius.circular(15),
               color: Colors.grey,
             ),
-            child: TextField(
-              
-              controller: Controller,
-              decoration: InputDecoration(
-                contentPadding: EdgeInsets.all(8),
-                border: InputBorder.none,
-                suffixIcon: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      views.add(userText(Controller.text.trim()));
-                    });
-                    // print("The length of views is ${views.length}");
-                    socket.sink.add(Controller.text.trim());
-                    Controller.clear();
-                  },
-                  child: Icon(Icons.send),
+            child: CallbackShortcuts(
+              bindings: <ShortcutActivator, VoidCallback>{
+                const SingleActivator(LogicalKeyboardKey.enter): (){
+                  sendMessage();
+                }
+              },
+              child: TextField(
+                autofocus: true,
+                
+                controller: Controller,
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.all(8),
+                  border: InputBorder.none,
+                  suffixIcon: GestureDetector(
+                    onTap: sendMessage,
+                    child: Icon(Icons.send),
+                  ),
                 ),
               ),
             ),
@@ -98,17 +113,18 @@ class _ChatpageState extends State<Chatpage> {
     );
   }
 
-  Widget llmResponse(String theText) {
+  Widget llmResponse(String theText, BuildContext context) {
+    Size screenSize = MediaQuery.of(context).size;
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Container(
-          width: 500,
+          width: screenSize.width * 0.7,
           margin: EdgeInsets.only(left: 30, top: 20, right: 50),
           padding: EdgeInsets.all(13),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(15),
-            color: Colors.greenAccent,
+            
           ),
           child: Text(theText, softWrap: true,textAlign: TextAlign.left,),
         ),

@@ -1,6 +1,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gpt_clone/data/wraps.dart';
 import 'package:gpt_clone/pages/chatPage.dart';
 import 'package:gpt_clone/widgtets/wrapcontainer.dart';
@@ -25,6 +26,10 @@ class _ChatBoardState extends State<ChatBoard> {
   @override
   void initState() {
     super.initState();
+  }
+
+  void sendText(){
+    Navigator.push(context, MaterialPageRoute(builder: (context) => Chatpage(initialText: querycontroller.text.trim(),)));
   }
   @override
   Widget build(BuildContext context) {
@@ -52,13 +57,20 @@ class _ChatBoardState extends State<ChatBoard> {
             ),
             child: Column(
               children: [
-                TextField(
-                  controller: querycontroller,
-                  maxLines: null,
-                  decoration: InputDecoration(
-                    hintText: "Message",
-                    border: InputBorder.none,
-                    
+                CallbackShortcuts(
+                  bindings: <ShortcutActivator, VoidCallback>{
+                    const SingleActivator(LogicalKeyboardKey.enter) : (){
+                      sendText();
+                    }
+                  },
+                  child: TextField(
+                    controller: querycontroller,
+                    maxLines: null,
+                    decoration: InputDecoration(
+                      hintText: "Message",
+                      border: InputBorder.none,
+                      
+                    ),
                   ),
                 ),
                 Row(
@@ -66,11 +78,7 @@ class _ChatBoardState extends State<ChatBoard> {
                   children: [
                   Icon(Icons.attach_file, color: Colors.grey),
                   GestureDetector(
-                    onTap: () {
-                      
-                      // socket_service().requestInfo(querycontroller.text.trim());
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => Chatpage(initialText: "hi",)));
-                    },
+                    onTap: sendText,
                     child: CircleAvatar(
                       backgroundColor: Colors.grey,
                       child: Icon(Icons.send, color: Colors.white),
