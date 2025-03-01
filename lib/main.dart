@@ -4,13 +4,15 @@ import 'package:gpt_clone/widgtets/chat.dart';
 
 void main() {
   print("hello world");
-  runApp(MaterialApp(
-    debugShowCheckedModeBanner: false,
-    home: HomePage(),
-    theme: ThemeData(
-      scaffoldBackgroundColor: Color(0xFFFFFFFF),
+  print("might delete later");
+  print("another one");
+  runApp(
+    MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: HomePage(),
+      theme: ThemeData(scaffoldBackgroundColor: Color(0xFFFFFFFF)),
     ),
-  ));
+  );
 }
 
 class HomePage extends StatelessWidget {
@@ -24,7 +26,7 @@ class HomePage extends StatelessWidget {
         children: [
           TheeBar(),
           ChatBoard(),
-          Text("by messaging .., you agree to my not our terms and condition")
+          Text("by messaging .., you agree to my not our terms and condition"),
         ],
       ),
     );
